@@ -8,9 +8,15 @@ const database = new Database()
 export const routes = [
     {
         method: 'GET',
-        url: buildRoutePath( '/users'),
+        url: buildRoutePath('/users'),
         handler: (req, res) => {
-            const users = database.select('users')
+            const { search } = req.query;
+            
+            
+            const users = database.select('users', search ? {
+                name: search,
+                email: search
+            } : null)
 
             // a função get não recebe/suporta retornos em arrays, é necessário passar pra um JSON
             return res.end(JSON.stringify(users))
@@ -36,6 +42,21 @@ export const routes = [
         }
     },
     {
+        method: 'PUT',
+        url: buildRoutePath( '/users/:id'),
+        handler: (req, res) => {
+            const { id } = req.params;
+            const { name, email } = req.body
+
+            database.update('users', id, {
+                name,
+                email,
+            })
+
+            return res.writeHead(204).end()
+        }
+    },
+    {
         method: 'DELETE',
         url: buildRoutePath( '/users/:id'),
         handler: (req, res) => {
@@ -45,5 +66,5 @@ export const routes = [
             
             return res.writeHead(204).end()
         }
-    }
+    },
 ]
